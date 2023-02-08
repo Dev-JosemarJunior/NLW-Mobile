@@ -32,10 +32,10 @@ export function New() {
   }
 
   // Usando variável:String.trim() é possível fazer a conferência excluíndo-se espaços
-  async function handleCreateNewHabit(params:type) {
+  async function handleCreateNewHabit() {
     try {
       if(!title.trim() || weekDays.length === 0){
-        Alert.alert('Novo hábito', 'Informe o nome do hábito e escolhe os dias.')
+        return Alert.alert('Novo hábito', 'Informe o nome do hábito e escolha os dias.')
       }
 
       await api.post('habits', {title, weekDays})
