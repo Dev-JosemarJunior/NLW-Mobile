@@ -85,6 +85,7 @@ export function New() {
                 title={weekDay}
                 checked={weekDays.includes(index)}
                 onPress={() => handleToogleWeekDay(index)}
+                newHabit={true}
               />
             )
           })
