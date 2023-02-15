@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ScrollView, View, Text, Alert } from 'react-native';
+import { ScrollView, View, Text, Alert, TouchableOpacity } from 'react-native';
 import { BackButton } from '../components/BackButton';
 import { useRoute } from '@react-navigation/native';
 import dayjs from 'dayjs';
@@ -8,6 +8,8 @@ import { CheckBox } from '../components/CheckBox';
 import { api } from '../lib/axios';
 import { Loading } from '../components/Loading';
 import { HabitsEmpty } from '../components/HabitsEmpty';
+import { Feather } from '@expo/vector-icons'
+import colors from 'tailwindcss/colors';
 import clsx from 'clsx';
 
 
@@ -31,6 +33,7 @@ export function Habit() {
   const [dayInfo, setDayInfo] = useState<DayInfoProps | null>(null);
   const [completedHabits, setCompletedHabits] = useState<string[]>([]);
   const [possibleHabits, setPossibibleHabits] = useState<string[]>([]);
+  const [deleted, setDeleted] = useState(false)
 
   const parsedDate = dayjs(date);
   const isDateInPast = parsedDate.endOf('day').isBefore(new Date())
@@ -44,12 +47,32 @@ export function Habit() {
       setDayInfo(response.data);
       setCompletedHabits(response.data.completedHabits);
       setPossibibleHabits(response.data.possibleHabits);
+      setDeleted(false)
     } catch (error) {
       console.log(error);
       Alert.alert('Ops', 'Não foi possível carregar as informações dos hábitos')
     } finally {
       setLoading(false)
     }
+  }
+
+  async function deleteHabits(habitTitle: string, habitId: string) {
+
+    try {
+
+      //Delete Habit Route
+      await api.delete(`/habits/${habitId}/delete`)
+      setPossibibleHabits((prevState) => [...prevState, habitId])
+
+      Alert.alert('OK', `hábito ${habitTitle} deletado`)
+      setDeleted(true)
+
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Ops', 'Não foi possível deletar o hábito')
+      setDeleted(false)
+    }
+
   }
 
   async function handleToggleHabtis(habitId: string) {
@@ -76,7 +99,7 @@ export function Habit() {
 
   useEffect(() => {
     fetchHabits()
-  }, [])
+  }, [deleted])
 
   if (loading) {
     return (
@@ -117,13 +140,28 @@ export function Habit() {
           {
             dayInfo?.possibleHabits.length ?
               dayInfo?.possibleHabits.map((habit) => (
-                <CheckBox
-                  key={habit.id}
-                  title={habit.title}
-                  checked={completedHabits.includes(habit.id)}
-                  disabled={isDateInPast}
-                  onPress={() => handleToggleHabtis(habit.id)}
-                />
+                <View className='flex-row items-center mt-3'>
+                  <CheckBox
+                    key={habit.id}
+                    title={habit.title}
+                    checked={completedHabits.includes(habit.id)}
+                    disabled={isDateInPast}
+                    onPress={() => handleToggleHabtis(habit.id)}
+                  />
+                  <TouchableOpacity
+                    key={`${habit.id}-delete`}
+                    activeOpacity={0.7}
+                    className='ml-auto'
+                    onPress={() => deleteHabits(habit.title, habit.id)}
+                  >
+                    <Feather
+                      name='trash'
+                      color={colors.red[700]}
+                      size={20}
+                    />
+                  </TouchableOpacity>
+
+                </View>
               ))
               : (<HabitsEmpty />)
           }

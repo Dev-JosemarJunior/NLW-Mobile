@@ -13,19 +13,14 @@ import Animated, {FlipInXDown, FlipOutXUp} from 'react-native-reanimated';
 interface Props extends TouchableOpacityProps {
   title: String
   checked?: boolean
-  newHabit: boolean
 }
 
-export function CheckBox({ title, checked = false, newHabit, ...rest }: Props) {
-
-  function deleteHabits(habitTitle: String) {
-    Alert.alert('ok', `hábito ${habitTitle} deletado`)
-  }
+export function CheckBox({ title, checked = false, ...rest }: Props) {
 
   return (
     <TouchableOpacity
       activeOpacity={0.7}
-      className='flex-row items-center mt-3'
+      className='flex-row items-center'
       {...rest}
     >
       {
@@ -49,20 +44,6 @@ export function CheckBox({ title, checked = false, newHabit, ...rest }: Props) {
       <Text className='ml-3 text-white text-base font-semibold'>
         {title}
       </Text>
-
-      <TouchableOpacity
-        activeOpacity={0.7}
-        className='flex-row h-11 px-4 items-center ml-auto'
-        onPress={() => deleteHabits(title)}
-      >
-        {
-          !newHabit &&
-          <Feather
-          name='trash'
-          color={colors.red[700]}
-          size={20}
-        />}
-      </TouchableOpacity>
 
     </TouchableOpacity>
   )
